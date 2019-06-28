@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  web:
+    image: manufacturingapp:latest
+    environment:
+      MANUFACTURINGAPP_SECRET_KEY: 
+      MANUFACTURINGAPP_DEBUG: 1
+      MANUFACTURINGAPP_ALLOWED_HOSTS: >-
+        localhost
+      MANUFACTURINGAPP_ADDITIONAL_APPS: labortracker
+      MANUFACTURINGAPP_DATABASES: >-
+        {
+          "default": {
+            "ENGINE": "sql_server.pyodbc",
+            "NAME": "",
+            "HOST": "",
+            "PORT": "1434",
+            "USER": "",
+            "PASSWORD": "",
+            "OPTIONS": {
+              "driver": "ODBC Driver 17 for SQL Server",
+              "isolation_level": "READ UNCOMMITTED"
+            }
+          }
+        }
+      STATIC_ROOT: /c/Users/itruong/Documents/Development/manufacturingapp/static/
+      STATIC_URL: /static/
+    command: >
+      bash -c "python3.7 manage.py migrate --noinput && 
+      python3.7 manage.py collectstatic --noinput &&
+      python3.7 manage.py runserver 0.0.0.0:8000"
+    dns:
+      - 10.112.224.201
+      - 10.112.224.202
+    ports:
+      - 8000:8000
+    volumes:
+      - /c/Users/itruong/Documents/Development/manufacturingapp:/manufacturingapp

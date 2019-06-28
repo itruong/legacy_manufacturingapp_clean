@@ -1,0 +1,241 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link rel='stylesheet' href='{% static "css/management_settings.css" %}'>
+{% endblock %}
+
+{% block title %}
+    Settings
+{% endblock %}
+
+{% block body %}
+    <p class=title>Settings</p>
+    <div id='routings'>
+        <p class=section-title>Routings</p>
+        <p>
+            Please download the current routings to view the column mapping; new routings must follow the same mapping.<br>
+            The header (first) row will be omitted.
+        </p>
+        <div class=buttonDivs>
+            <p>Download the current routings:</p>
+            <input type="button" class="submit" id="routings" value="Download" onclick="getData(this.id, this.id, '{{ csrf_token }}');">
+        </div>
+        
+        <input type='file' id='routings-input'>
+        <p id='routings-title' name='title'>Preview: no file selected</p>
+        <div id='routingsPreview' class='data_window'>
+            <table id='routingsTable' class='table'></table>
+        </div>
+        <div class='errorbox' name='errors'></div>
+        <div class=buttonDivs>
+            <p>
+                Click Upload to preview your new routings. For best compatibility, use CSV/comma delimited UTF-8 or ISO-8859-1 format only. 
+                <br>If there are no errors, click Save to permanently overwrite the existing routings.
+            </p>
+            <span class=buttonContainer>
+                <input type="button" class="submit" id="routings-upload" value="Upload" onclick="document.getElementById('routings-input').click();">
+            </span>
+            <span class=buttonContainer>
+                <input type="button" class="submit" id="routings-save" name="save" value="Save" disabled>
+            </span>
+            <span name='save-status'></span>
+        </div>
+        
+    </div>
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{% static 'js/my_utilities.js' %}"></script>
+<script type="text/javascript">
+    var routings_headers = {{ routings_headers|safe }};
+
+    class DataTable{
+        constructor(containerElement, headers, validators){
+            this.headers = headers;
+            this.title = containerElement.querySelector('[name=title]');
+            this.table = containerElement.querySelector('[class=data_window]').querySelector('table');
+            this.data = "";
+            this.valid = false;
+            this.validators = validators;
+            this.errors = containerElement.querySelector('[name=errors]');
+        }
+        getData(){
+            return this.data;
+        }
+        parseData(data, delimiter){
+            const datalist = [[]];
+            //const map = {'\\':0,'\'':0,'\"':0};
+            let escaped = '';
+            let str = "";
+            delimiter = (delimiter || ',');
+            let matches = null;
+            const patterns = /(,|\r?\n|\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^,\r\n]*))/g;
+            while(matches = patterns.exec(data)){
+                if(matches[1].length && matches[1] !== delimiter)
+                    datalist.push([])
+                datalist[datalist.length-1].push(matches[2] ? matches[2].replace(/\"\"/g,"\"") : matches[3]);
+            }
+            return datalist
+        }
+        setData(data){
+            const fr = new FileReader();
+            fr.addEventListener('loadend',() => {
+                //this.data = fr.result.split('\n').splice(1);
+                this.data = this.parseData(fr.result.trim(), ',').splice(1)
+                this.createTable();
+            })
+            /*const readFile = new Promise((resolve, reject) => {
+                resolve(fr.readAsText(data)
+            })*/
+
+            fr.readAsText(data);
+        }
+        createTable(){
+            const error = new Map();
+            this.valid = false
+            const tf = document.createDocumentFragment();
+            const tb = document.createElement('tbody');
+            tf.appendChild(tb);
+            let tr = document.createElement('tr');
+            tb.appendChild(tr);
+            for (const header of this.headers){
+                const th = document.createElement('th');
+                th.innerHTML = header;
+                tr.appendChild(th);
+            }
+            for (const row of this.data){
+                tr = document.createElement('tr');
+                
+                if(row.length != this.headers.length){
+                    isNaN(error.get('length')) ? error.set('length', 1) : error.set('length', error.get('length')+1);
+                    tr.style.background = 'rgba(255,0,0,0.2)';
+                }
+                let empty = true;
+                for (const col of row){
+                    if (col != '')
+                        empty = false
+                }
+                if(empty){
+                    continue
+                }
+                tb.appendChild(tr);    
+                for (const [i, col] of row.entries()){
+                    const td = document.createElement('td');
+                    tr.appendChild(td);
+                    td.innerHTML = col;
+                    if (this.validators[i] != undefined){
+                        if(!this.validators[i][0](col)){
+                            td.style.background = 'rgba(255,0,0,0.2)';
+                            isNaN(error.get(i)) ? error.set(i, 1) : error.set(i, error.get(i)+1);
+                        }
+                    }
+                }
+                
+            }
+            this.table.appendChild(tf);
+            if(error.size == 0)
+                this.valid = true;
+            else{
+                let nerrors = 0;
+                for (const v of error.values())
+                    nerrors += v;
+                let str = "";
+                for (const k of error.keys()){
+                    if (k == 'length'){
+                        str += `<li>(${error.get(k)}) row size is invalid</li>`
+                    }
+                    else
+                        str += `<li>(${error.get(k)}) ${this.headers[k]} ${this.validators[k][1]}</li>`
+                }
+                this.errors.innerHTML = `<p>${nerrors} errors found:</p><ul>${str}</ul>`;
+                this.errors.style.display = 'block';
+            }
+        }
+        clearTable(){
+            this.table.innerHTML = "";
+            this.title.innerHTML = 'Preview: no file selected';
+            this.errors.innerHTML = '';
+            this.errors.style.display = 'none';
+        }
+    }
+
+    class FileTable extends DataTable{
+        constructor(containerElement, headers, validators){
+            super(containerElement, headers, validators);
+            this.hiddenFileInput = containerElement.querySelector('[type=file]');
+            this.hiddenFileInput.onclick = () => {
+                this.hiddenFileInput.value = "";
+                this.clearTable();
+            }
+            this.hiddenFileInput.oninput = () => {
+                this.setData();
+            }
+            this.sendInput = containerElement.querySelector('[name=save]');
+            this.sendInput.onclick = () => this.sendFile();
+            this.status = containerElement.querySelector('[name=save-status]');
+        }
+
+        createTable(){
+            super.createTable();
+            this.title.innerHTML = `Preview: ${this.hiddenFileInput.files[0].name}`;
+            if(this.valid)
+                this.sendInput.disabled = false
+            else
+                this.sendInput.disabled = true
+        }
+
+        clearTable() {
+            this.status.innerHTML = '';
+            this.sendInput.disabled = true;
+            super.clearTable();
+        }
+        sendFile(){
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '');
+            xhr.onload = () => {
+                if (xhr.status === 200 && xhr.response == 'success'){
+                    this.status.innerHTML = '✔ Save successful!';
+                    this.status.style.color = 'rgb(45, 194, 15)';
+                    console.log('saved');
+                }
+                else{
+                    this.status.innerHTML = '✘ An error occurred. Your request has not be processed.';
+                    this.status.style.color = 'red';
+                    console.log('request failed. returned status of '+xhr.status);
+                }
+            }
+            const data = new FormData();
+            data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            data.append('file', this.hiddenFileInput.files[0]);
+            xhr.send(data);
+        }
+        setData(){
+            const data = this.hiddenFileInput.files[0];
+            if(data === undefined)
+                return console.log('no file selected');
+            if(data.size == 0){
+                super.clearTable();
+                this.title.innerHTML = `Preview: ${data.name} (empty)`;
+                return console.log('empty file');
+            }
+            super.setData(this.hiddenFileInput.files[0]);
+        }
+    }
+
+    document.getElementById('routings').datatable = new FileTable(document.getElementById('routings'), routings_headers, 
+    {
+        0:[(n) => n != '', "cannot be empty"],
+        1:[(n) => n != '', "cannot be empty"],
+        2:[(n) => n != '', "cannot be empty"],
+        4:[(n) => !isNaN(n), "must be an integer"], 
+        5:[(n) => !isNaN(n), "must be an integer"],
+    });
+    
+
+
+
+</script>
+{% endblock %}

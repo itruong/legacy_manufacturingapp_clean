@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link rel='stylesheet' href="{% static 'css/submissions.css' %}">
+{% endblock %}
+
+{% block title %}
+    Submissions Information
+{% endblock %}
+
+{% block body %}
+    <div id='weekly_submit' class='submissions'>
+        <h1>Weekly User Submissions</h1>
+        <div id='date_select'>
+            <button class='buttons' id='prev' onclick="refreshTable(this.parentElement.parentElement, this.id);">&lt;</button>
+            <span id='date'></span>
+            <button class='buttons' id='next' onclick="refreshTable(this.parentElement.parentElement, this.id);">&gt;</button>
+        </div>
+        <!--
+        <h1>Users who have submitted:</h1>
+        <div id='submitted'></div>
+        <h1>Users who have not submitted:</h1>
+        <div id='not_submitted'></div>
+        -->
+        <table id='user_table'>
+            <tbody id='user_table_body'>
+            </tbody>
+        </table>
+    </div>
+    <br><br><br><br>
+    
+    <div id='daily_submit' class='submissions'>
+        <h1>Daily User Submissions</h1>
+        <div id='date_select'>
+            <button class='buttons' id='prev' onclick="refreshTable(this.parentElement.parentElement, this.id);">&lt;</button>
+            <span id='date'></span>
+            <button class='buttons' id='next' onclick="refreshTable(this.parentElement.parentElement, this.id);">&gt;</button>
+        </div>
+
+        <table id='user_table'>
+            <tbody id='user_table_body'>
+            </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    //var submitted = {{ submitted|safe }};
+    //var not_submitted = {{ not_submitted|safe }};
+    var retrieve_date_weekly = {{ retrieve_date_weekly|safe }};
+    var retrieve_date_daily = {{ retrieve_date_daily|safe }};
+    var weekly_submissions = {{ weekly_submissions|safe }};
+    var daily_submissions = {{ daily_submissions|safe }};
+    var names = {{ names|safe }};
+
+    function refreshTable(parent, direction){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '');
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onload = function() {
+            if (xhr.status === 200){
+                var xhr_data = JSON.parse(xhr.response);
+                var date = JSON.parse(xhr_data['retrieve_date']);
+                var submissions = JSON.parse(xhr_data['submissions']);
+                parent.querySelector('[id=date]').innerHTML = date;
+                showUserTable(parent, submissions);
+            }
+            else{
+                console.log('request failed. returned status of '+xhr.status);
+            }
+        };
+        var date = parent.querySelector('[id=date]').innerHTML;
+        var data = 'csrfmiddlewaretoken={{ csrf_token }}&data=refresh&direction='+direction+'&date='+date+'&table='+parent.id;
+        xhr.send(data);
+    }
+    var x;
+    function retrieveForm(cell){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '');
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onload = function() {
+            if (xhr.status === 200){
+                if (xhr.response != ""){
+                    var w = window.open();
+                    w.document.open();
+                    w.document.write(xhr.response);
+                    w.document.close();
+                    w.history.pushState(xhr.response, 'View Form', xhr.responseURL);
+                    w.document.title = 'View Form';
+                }
+            }
+            else{
+                console.log('request failed. returned status of '+xhr.status);
+            }
+        };
+        var date = cell.getAttribute('data-date');
+        var user = cell.getAttribute('data-user');
+        var data = 'csrfmiddlewaretoken={{ csrf_token }}&data=retrieve&user='+user+'&date='+date;
+        xhr.send(data);
+    }
+    function showUsers(container_id, users){
+        var container = document.getElementById(container_id);
+        var temp_container = document.createElement('div');
+        var table = document.createElement('table');
+        users.forEach(function(user){
+            var row = document.createElement('tr');
+            var cell = document.createElement('td');
+            cell.innerHTML = `${user[0]} ${user[1]}`;
+            row.appendChild(cell);
+            table.appendChild(row);
+        });
+        temp_container.appendChild(table);
+        container.innerHTML = temp_container.innerHTML;
+    }
+    function showUserTable(parent, dict_list){
+        var tbody = parent.querySelector('[id=user_table_body]');
+        tbody.innerHTML = "";
+        var trow = document.createElement('tr');
+        trow.setAttribute('id','user_table_head_row');
+        var name_cell = document.createElement('th');
+        name_cell.setAttribute('class','user_table_label');
+        name_cell.innerHTML = 'Name';
+        trow.appendChild(name_cell);
+        tbody.appendChild(trow);
+        var first = true;
+        var keys = Object.keys(dict_list);
+        for(var i=keys.length-1;i>=0;i--){
+            date_key = keys[i];
+            var head = document.createElement('th');
+            head.setAttribute('class', 'user_table_head')
+            var head_div = document.createElement('div');
+            var head_span = document.createElement('span');
+            head_span.innerHTML = date_key;
+            head_div.appendChild(head_span);
+            head.appendChild(head_div);
+            trow.appendChild(head);
+            dict = dict_list[date_key];
+            if(first){
+                for(var name_key in dict){
+                    var user_row = document.createElement('tr');
+                    user_row.setAttribute('class', 'user_row');
+                    var user_cell = document.createElement('td');
+                    user_cell.innerHTML = names[name_key];
+                    user_row.appendChild(user_cell);
+                    parent.querySelector('[id=user_table_body]').appendChild(user_row);
+                }
+            }
+            var index = 0;
+            for(var name_key in dict){
+                var user_row = parent.querySelectorAll('[class=user_row]')[index];
+                var hrs_cell = document.createElement('td');
+                var hrs = dict[name_key];
+                if(hrs != 0){
+                    hrs_cell.innerHTML = dict[name_key];
+                    if(hrs > 40)
+                        hrs_cell.style.backgroundColor = "rgba(255, 255, 126, 1)";
+                    hrs_cell.style.cursor = 'pointer';
+                    hrs_cell.setAttribute('onmouseover','this.style.fontWeight = "bold";');
+                    hrs_cell.setAttribute('onmouseout','this.style.fontWeight = "normal";');
+                }
+                else
+                    hrs_cell.style.backgroundColor = "rgba(255,0,0,0.3)";
+                hrs_cell.setAttribute('data-user', name_key);
+                var new_date_key = date_key;
+                if(new_date_key.length > 'Mar_10, 2019'.length)
+                    new_date_key = new_date_key.substr(4);
+                hrs_cell.setAttribute('data-date', new_date_key);
+                hrs_cell.setAttribute('onclick', "retrieveForm(this);");
+                user_row.appendChild(hrs_cell);
+                index++;
+            }
+            first = false;
+        }
+    }
+    /*
+    showUsers('submitted', submitted);
+    showUsers('not_submitted', not_submitted);
+    */
+    
+    document.getElementById('weekly_submit').querySelector('[id=date]').innerHTML = retrieve_date_weekly;
+    document.getElementById('daily_submit').querySelector('[id=date]').innerHTML = retrieve_date_daily;
+    showUserTable(document.getElementById('weekly_submit'), weekly_submissions);
+    showUserTable(document.getElementById('daily_submit'), daily_submissions);
+    
+</script>
+{% endblock %}

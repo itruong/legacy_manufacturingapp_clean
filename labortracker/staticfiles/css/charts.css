@@ -1,0 +1,161 @@
+
+
+div.divBody{
+	margin: 80px;
+	padding: 0 0;
+	/*border-left: 1px solid lightgray;*/
+}
+
+button[class=submit]{
+	padding: 10px 15px;
+	border-radius: 4px;
+	color: whitesmoke;
+	cursor: pointer;
+	border:1px solid #447e9b;
+	background-color: white;
+	color: #447e9b;
+	font-weight: 500;
+	box-shadow: 0 2px 3px gray;
+	height: auto;
+	outline: none;
+}
+button[class=submit]:hover{
+	border:1px solid #1c455a;
+	background: whitesmoke;
+	color: #1c455a;
+}
+
+.chart, .figure{
+	/*padding: 10px 0px;*/
+	margin: 20px 0px;
+	text-align: center;
+	/*border-left: 1.1px solid #447e9b;*/
+	
+	/*border-top: 1px solid lightgray;*/
+	/*border-bottom: 1px solid lightgray;
+	/*box-shadow: 0 0 10px 5px lightgray;*/
+}
+
+.figure{
+	background-color: #f4fcff;
+	padding: 10px 0;
+}
+
+div#datatable > table, div#systable > table{
+	margin: 20px auto;
+}
+
+
+.chart{
+	background: white;
+}
+svg{
+	margin: auto;
+}
+text{
+	font-family: 'Segoe UI';
+	font-weight: 340;
+	font-size: 12px;
+}
+#title{
+	font-weight: 300;
+	font-size: 30px;
+}
+.line-chart{
+    border: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+.line{
+    fill: none;
+}
+.browser text {
+  	text-anchor: end;
+}
+.overlay {
+	fill: none;
+	pointer-events: all;
+}
+
+.focus circle {
+	fill: #F1F3F3;
+	stroke: black;
+	stroke-width: 1px;
+}
+  
+.hover-line {
+	stroke: gray;
+	shape-rendering: crispEdges;
+	stroke-width: 1px;
+	/*stroke-dasharray: 6,4;*/
+}
+
+
+
+#contextMenu{
+	width: 200px;
+	border: 1px solid #c7c7c7;
+	box-shadow: 4px 4px 2px -3px rgba(0,0,0,0.6);
+}
+
+#padding{
+	height: 2px;
+}
+
+.dropdown span{
+    padding: 0px 35px;
+	display: block;
+	cursor:pointer;
+	line-height: 20px;
+	font-size: 13px;
+	color: #447e9b;
+}
+.dropdown span:hover{
+    background-color: rgb(238, 249, 255);
+}
+
+.modal{
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgba(0,0,0,0.3);
+}
+.modal-content{
+	background-color: white;
+	margin: 15% auto;
+	padding: 20px;
+	border: none;
+	border-radius: 20px;
+	width: 600px;
+}
+.modal-content > table > tbody > tr, .modal-content > table > tbody > tr > th{
+	background-color: initial;
+	text-align: left;
+}
+@media print{
+	#header, #download, #datatable{
+		display: none;
+	}
+	#bar{
+		display: none;
+	}
+	.chart{
+		padding: 0;
+		margin: 0;
+		border: none;
+		page-break-after: always;
+	}
+	div.divBody{
+		margin: 0;
+	}
+}

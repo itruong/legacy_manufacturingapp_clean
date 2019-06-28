@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class=images>
+    <a href="{% url 'security_form' %}">
+        <div class="banner">
+            <div name=banner0 class=bannerdiv></div>
+            <div class=bannertext>Detection Systems Manufacturing</div>
+        </div>
+    </a>
+    <a href="#">
+        <div class="banner">
+            <div name=banner1 class=bannerdiv></div>
+            <div class=bannertext>Detection Subsystems Manufacturing</div>
+        </div>
+    </a>
+    <a href="{% url 'detector_form' %}">
+            <div class="banner">
+                <div name=banner2 class=bannerdiv></div>
+                <div class=bannertext>DAS & Detector Manufacturing</div>
+            </div>
+        </a>
+</div>
+<!--<h1 class=title>Welcome to Manufacturing Engineering!</h1>
+<h2 class=detector>Detector Manufacturing</h2>
+<h2 class=RR>ANRR00 Road Runner</h2>-->
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    function displayGuide(){
+        //document.getElementById('icon-info').setAttribute('background')
+        if (document.getElementById('info-background').style.display == 'block'){
+            document.getElementById('info-background').style.display = 'none';
+        }
+        else{
+            document.getElementById('info-background').style.display = 'block';
+        }
+        
+        //background-color: rgba(0,0,0,0.3);
+    }
+</script>
+{% endblock %}

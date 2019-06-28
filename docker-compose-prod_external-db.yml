@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  web:
+    image: manufacturingapp:latest
+    environment:
+      MANUFACTURINGAPP_SECRET_KEY: 
+      MANUFACTURINGAPP_DEBUG: 0
+      MANUFACTURINGAPP_ALLOWED_HOSTS: >-
+        localhost
+      MANUFACTURINGAPP_ADDITIONAL_APPS: labortracker
+      MANUFACTURINGAPP_DATABASES: >-
+        {
+          "default": {
+            "ENGINE": "sql_server.pyodbc",
+            "NAME": "",
+            "HOST": "",
+            "PORT": "1434",
+            "USER": "",
+            "PASSWORD": "",
+            "OPTIONS": {
+              "driver": "ODBC Driver 17 for SQL Server",
+              "isolation_level": "READ UNCOMMITTED"
+            }
+          }
+        }
+      STATIC_ROOT: /static/
+      STATIC_URL: /static/
+    command: >
+      bash -c "python3.7 manage.py migrate --noinput && 
+      python3.7 manage.py collectstatic --noinput &&
+      gunicorn manufacturingapp.wsgi:application --bind 0.0.0.0:8000"
+    dns:
+      - 10.112.224.201
+      - 10.112.224.202
+    expose:
+      - 8000
+    volumes:
+      - /c/Users/itruong/Documents/Development/static:/static
+
+  nginx:
+    image: nginx:latest
+    environment:
+      NGINX_PORT: 80
+      SERVER_NAME: web
+      SERVER_PORT: 8000
+      STATIC_ROOT: /
+    command: >
+      /bin/bash -c "envsubst '$$NGINX_PORT $$SERVER_NAME $$SERVER_PORT $$STATIC_ROOT' < /etc/nginx/template_nginx.conf > /etc/nginx/conf.d/default.conf &&
+      exec nginx -g 'daemon off;'"
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+    volumes:
+      - /c/Users/itruong/Documents/Development/manufacturingapp/template_nginx.conf:/etc/nginx/template_nginx.conf
+      - /c/Users/itruong/Documents/Development/static:/static

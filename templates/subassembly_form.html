@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    ConneCT Form
+{% endblock %}
+
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/formstyle.css' %}">
+{% endblock %}
+
+{% block body %}
+
+<h2 id="title">Detection Subsystems Weekly Direct Labor Reporting</h2>
+
+<div id="content">
+<h1 id="welcome">Welcome,
+    {% if user.get_full_name|length > 0 %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.get_full_name }}</a>
+    {% else %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
+    {% endif %}
+</h1>
+<a id="change_user" href="{% url 'login' %}?next={% firstof request.path %}">Not you? Login as a different user</a>
+<br>
+<br>
+<br>
+
+<datalist id="assylist"></datalist>
+<datalist id="wtypelist"></datalist>
+
+<form id="form" method="post" autocomplete="off">
+    {% csrf_token %}
+    <div class="required">
+        {{ date_form.date.errors | striptags }} <br>      
+        <label for="{{ form.date.id_for_label }}">Week of:</label>
+        {{ date_form.date }}
+    </div>
+    <br>
+    <table cellspacing="0" cellpadding="0" id="formTable" class="divTable">
+        <tbody id="formTableBody">
+            <tr class="divTableRow">
+                <th class="deleteCell"></th>
+                <th  name="assyHead">Assy P/N</th>
+                <th name="descHead">Desc</th>
+                <th  name="wtypeHead">Work Type</th>
+                <th class="divTableHead" colspan=1 name="commentsHead">Comments</th>
+                <th class="divTableHead" id="weekend" colspan=2 name="taskTableDoubleDays[]">Sun</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleDays[]">Mon</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleDays[]">Tue</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleDays[]">Wed</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleDays[]">Thu</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleDays[]">Fri</th>
+                <th class="divTableHead" id="weekend" colspan=2 name="taskTableDoubleDays[]">Sat</th>
+                <th class="divTableHead" colspan=2 name="taskTableDoubleTot"><br>Total<br></th>
+            </tr>
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <span class='error'>{{ form.non_field_errors | striptags }}</span>      
+                {% for field in form %}
+                    {% if forloop.first %}
+                    <tr id="form-row-{{ forloop.parentloop.counter0 }}" class="divTableRow" name="taskTableRow[]">
+                        <td class=deleteCell>
+                            <a id="delete-form-row-{{ forloop.parentloop.counter0 }}" class="delete-row" onclick="deleteForm(this.id)">✘</a>
+                            <input type="image" src="{% static 'img/copy interface symbol.png' %}" id="copy-form-row-{{ forloop.parentloop.counter0 }}" class="copy-row" onclick="duplicateForm(this.id); return false;">
+                        </td>
+                        <td class="divTableCell">
+                            {% if field.errors %}
+                                <div class=tooltip name=error>
+                                    {{ field }}
+                                    <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </td>
+                        <td id="desc{{forloop.parentloop.counter0}}" name="descCell" class="divTableCell"></td>
+                        {% elif forloop.last %}
+                        <td class="divTableTot" id="formtotalq{{forloop.parentloop.counter0}}">0</td>
+                        <td class="divTableTot" id="formtotall{{forloop.parentloop.counter0}}">0</td>
+                        <td style="display: none">{{ field }}</td>
+                    </tr>
+                    {% else %}
+                        <td class="divTableCell">
+                            {% if field.errors %}
+                                <div class=tooltip name=error>
+                                    {{ field }}
+                                    <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <tr class="divTableRow" name="taskTableRow">
+                <th class="divTableHead" name="dailyTotalHead" colspan=6>Total Hours (Including Diverted and Non-SAP)</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableHead" name="dailyTotal" colspan=2>0</th>
+                <th class="divTableTot" name="dailyTotalTot" colspan=2>0</th>
+            </tr>
+        </tbody>
+    </table>
+    <input type="button" id="add-form-row" class="add-row" value="+" onclick="addForm()">
+    <br>
+    <br>
+    <input type="submit" name="submit" value="Submit">
+    <input type="submit" name="save" value="Save">
+</form>
+</div>
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>Error:</h1>
+        <p>The form failed to save or submit; please correct the errors shown.</p>        
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script type = "text/javascript" src="{% static 'js/forms.js' %}"></script>
+<script type="text/javascript">
+//-----------Load-----------//
+    var assyFields = {{ assyFields|safe }};
+    var tasks = {{ tarr|safe }};
+    var wtypeFields = {{ wtypeFields|safe }};
+    var error = {{ error|safe }};
+//-----------Functions-----------//
+function addForm(){
+        var formTot = document.getElementById("id_form-TOTAL_FORMS");
+        var rowElement = storedRow.cloneNode(true);
+        renameRow(rowElement, formTot.value);
+        formTot.value = parseInt(formTot.value)+1;
+        var tab = document.getElementById('formTableBody');
+        var row = tab.insertRow(tab.rows.length-1);
+        row.outerHTML = rowElement.outerHTML;
+        row.innerHTML = rowElement.innerHTML;
+    }
+    function deleteForm(id){
+        var formTot = document.getElementById("id_form-TOTAL_FORMS");
+        var formnum = id.substring("delete-form-row-".length);
+        var tab = document.getElementById("formTable");
+        var rowNum = parseInt(formnum)+1;
+        tab.deleteRow(rowNum);
+        var delBox = document.createElement('input');
+        delBox.setAttribute('type', 'checkbox');
+        delBox.setAttribute('name', 'form-'+formnum+"-DELETE");
+        delBox.setAttribute('id', 'id_form-'+formnum+"-DELETE");
+        delBox.setAttribute('checked', 'true')
+        formTot.value = formTot.value-1;
+        for(var i=rowNum; i<=formTot.value; i++){
+            reorderNext(i, 'form-row-'+i);
+        }
+        calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    }
+    function duplicateForm(id){
+        var formTot = document.getElementById('id_form-TOTAL_FORMS');
+        var formnum = id.substring("copy-form-row-".length);
+        var newformnum = formTot.value;
+        var rowElement = document.getElementById('form-row-'+formnum).cloneNode(true);
+        renameRow(rowElement, newformnum);
+        formTot.value = parseInt(newformnum)+1;
+        var tab = document.getElementById('formTableBody');
+        var row = tab.insertRow(tab.rows.length-1);
+        row.outerHTML = rowElement.outerHTML;
+        row.innerHTML = rowElement.innerHTML;
+        calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    }
+    function showTasks(element){
+        var id = element.id;
+        var components = getIdComponents(id)
+        var value = element.value;
+        var val1 = "";
+        var val2 = "";
+        if(value in tasks){
+            val1 = tasks[value][1];
+            val2 = tasks[value][2];
+        }
+        document.getElementById("desc"+components['formIndex']).innerHTML = val2;
+    } 
+    function showTasksInit(){
+        var components = getIdComponents("id_form-0-tas_0");
+        var endStr = "TOTAL_FORMS"
+        var numForms = document.getElementById(components['start'] + components['pref'] + "-" + endStr).value;
+        for(var i=0;i<numForms;i++){
+            showTasks(document.getElementById(components['start'] + components['pref'] + "-" + i + components['suf'] + '0'));
+        }
+    }
+    function renameRow(rowElement, newNum){
+        rowElement.setAttribute('id', "form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/form-[0-9]+-/g, "form-"+newNum+"-");
+        rowElement.innerHTML = rowElement.innerHTML.replace(/formtotalq[0-9]+/g, "formtotalq"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/formtotall[0-9]+/g, "formtotall"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/delete-form-row-[0-9]+/g, "delete-form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/copy-form-row-[0-9]+/g, "copy-form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/desc[0-9]+/g, "desc"+newNum);
+    }
+    function reorderNext(rowNum, rowId){
+        var formnum = rowNum-1;
+        var rowElement = document.getElementById(rowId);
+        renameRow(rowElement, formnum);
+    }  
+    
+//-----------Script-----------//
+var storedRow = document.getElementById('form-row-0').cloneNode(true);
+    storedRow.innerHTML = storedRow.innerHTML.replace(/value="[^"]*"/g, "");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/>.*<\/textarea>/g, "></textarea>");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/<div class="tooltip" name="error">/g, "");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/<span class="tooltiptext">(.*)<\/span>/g, "");
+
+    calcTotLabInit("id_form-0-taq_0", 0, "totalq");
+    calcTotLabInit("id_form-0-tal_0", 1, "totall");
+    calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    showTasksInit();
+
+    var taskList = document.getElementById('tasklist');
+    fillDatalist(tarr, taskList);
+
+    //showDateLabels("taskTableDays[]", document.getElementById("id_date").value);
+    showDateLabels("taskTableDoubleDays[]", document.getElementById("id_date").value);
+    //showCols("taskTableDays[]", "Hrs");
+    showQtyHrsCols("taskTableDoubleDays[]");
+    showQtyHrsCols("taskTableDoubleTot");
+    document.getElementById("id_date").setAttribute("oninput", "showDateLabels('taskTableDays[]', this.value); showDateLabels('taskTableDoubleDays[]', this.value); showCols('taskTableDays[]','Hrs'); showQtyHrsCols('taskTableDoubleDays[]');");
+
+    if(error){
+        var modal = document.getElementById('modal');
+        var span = document.getElementsByClassName('close')[0];
+        modal.style.display = "block";
+        span.onclick = function(){
+            modal.style.display = "none";
+        }
+        window.onclick = function(event){
+            if(event.target == modal){
+                modal.style.display = "none";
+            }
+        }
+    }
+</script>
+{% endblock %}
+

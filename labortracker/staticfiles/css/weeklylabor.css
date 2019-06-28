@@ -1,0 +1,15 @@
+
+.table{
+    display: table;
+    width: 100%;
+}
+
+.thead{
+    display: table-row;
+}
+
+.hcell{
+    display: table-cell;
+    font-weight: bold;
+	text-align:center;
+}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}<!--<!DOCTYPE html>-->
+
+{% block title %}
+    Detector Form
+{% endblock %}
+
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/formstyle.css' %}">
+{% endblock %}
+
+{% block body %}
+{% if user.is_staff %}
+<a href="{% url 'systems_analyze' %}"><h1>
+    Analyze
+</h1></a>
+{% endif %}
+
+<img class="alogo" src="{% static 'img/analogic_logo.png' %}" alt="Analogic Corporation" style="width: 30%; height: 30%">
+<h2 id="title">Detector Lab Weekly Direct Labor Reporting</h2>
+
+<div id="content">
+<h1 id="welcome">Welcome,
+    {% if user.get_full_name|length > 0 %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.get_full_name }}</a>
+    {% else %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
+    {% endif %}
+</h1>
+<a id="change_user" href="{% url 'login' %}?next={% firstof request.path %}">Not you? Login as a different user</a>
+<br>
+<br>
+<br>
+
+<form id="form" method="post" autocomplete="off">
+    {% csrf_token %}
+    <div class="required">
+        <div class="errortext">{{ date_form.date.errors | striptags }} </div>
+        <br>      
+        <label for="{{ form.date.id_for_label }}">Week of:</label>
+        {{ date_form.date }}
+    </div>
+    <br>
+    <table cellspacing="0" cellpadding="0" id="divLabTable" class="divTable">
+        <tbody id="divtablebody">
+        <tr class="divTableRow">            
+            <th  name="divLabHead">Diverted Labor (Hours)</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sun<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Mon<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Tue<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Wed<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Thu<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Fri<br>Hrs</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sat<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableTot"><br>Total<br>Hrs</th>
+        </tr>
+        {{ divFormset.management_form }}
+        {% for form in divFormset %}
+            <span class='error'>{{ form.non_field_errors | striptags }}</span>
+            {% for field in form %}
+                {% if forloop.first %}
+                <tr id="divForm-row-{{ forloop.parentloop.counter0 }}" class="divTableRow" name="divTableRow[]">
+                <td class="divTableCell">
+                    {{ divFields.forloop.counter0 }}
+                </td>
+                {% elif forloop.last %}
+                    <td class="divTableTot" id="ta_td{{forloop.parentloop.counter0}}">0</td>
+                </tr>
+                {% else %}
+                    <td class="divTableCell">
+                        {% if field.errors %}
+                            <div class=tooltip name=error>
+                                {{ field }}
+                                <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <table cellspacing="0" cellpadding="0" id="nsLabTable" class="divTable">
+        <tbody id="nstablebody">
+        <tr class="divTableRow">            
+            <th  name="divLabHead">Non-SAP Labor (Hours)</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sun<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Mon<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Tue<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Wed<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Thu<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Fri<br>Hrs</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sat<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableTot"><br>Total<br>Hrs</th>
+        </tr>
+        {{ nsFormset.management_form }}
+        {% for form in nsFormset %}
+            <span class='error'>{{ form.non_field_errors | striptags }}</span>
+            {% for field in form %}
+                {% if forloop.first %}
+                <tr id="nsForm-row-{{ forloop.parentloop.counter0 }}" class="divTableRow" name="divTableRow[]">
+                <td class="divTableCell">
+                    {{ nsFields.forloop.counter0 }}
+                </td>
+                {% elif forloop.last %}
+                    <td class="divTableTot" id="ta_tn{{forloop.parentloop.counter0}}">0</td>
+                </tr>
+                {% else %}
+                    <td class="divTableCell">
+                        {% if field.errors %}
+                            <div class=tooltip name=error>
+                                {{ field }}
+                                <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div class="heading">Production</div>
+    <br>
+    <table cellspacing="0" cellpadding="0" id="prodTable" class="divTable">
+        <tbody id="nstablebody">
+            <tr class="divTableRow">
+                <th name="taskHead">Task No.</th>
+                <th name="partHead">Part No.</th>
+                <th name="descHead">Desc</th>
+                <th class="divTableHead" id="weekend" colspan=2 name="taskTableDays[]">Sun</th>
+                <th class="divTableHead" colspan=2 name="taskTableDays[]">Mon</th>
+                <th class="divTableHead" colspan=2 name="taskTableDays[]">Tue</th>
+                <th class="divTableHead" colspan=2 name="taskTableDays[]">Wed</th>
+                <th class="divTableHead" colspan=2 name="taskTableDays[]">Thu</th>
+                <th class="divTableHead" colspan=2 name="taskTableDays[]">Fri</th>
+                <th class="divTableHead" id="weekend" colspan=2 name="taskTableDays[]">Sat</th>
+                <th class="divTableHead" colspan=2 name="taskTableTot"><br>Total<br></th>
+            </tr>
+            {{ prodFormset.management_form }}
+            {% for form in prodFormset %}
+                <span class='error'>{{ form.non_field_errors | striptags }}</span>
+                {% for field in form %}
+                    {% if forloop.first %}
+                    <tr id="prodForm-row-{{ forloop.parentloop.counter0 }}" class="divTableRow" name="divTableRow[]">
+                        <td name=deleteCell>
+                            <a id="delete-prodForm-row-{{ forloop.parentloop.counter0 }}" class="delete-row" onclick="deleteForm(this.id)">🗙</a>
+                            <input type="image" src="{% static 'img/copy interface symbol.png' %}" id="copy-prodForm-row-{{ forloop.parentloop.counter0 }}" class="copy-row" onclick="duplicateForm(this.id); return false;">
+                        </td>    
+                    <td class="divTableCell">
+                        {% if field.errors %}
+                            <div class=tooltip name=error>
+                                {{ field }}
+                                <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </td>
+                    {% elif forloop.last %}
+                        <td class="divTableTot" id="ta_tq{{forloop.parentloop.counter0}}">0</td>
+                        <td class="divTableTot" id="ta_th{{forloop.parentloop.counter0}}">0</td>
+                        <td style="display: none">{{ field }}</td>
+                    </tr>
+                    {% else %}
+                        <td class="divTableCell">
+                            {% if field.errors %}
+                                <div class=tooltip name=error>
+                                    {{ field }}
+                                    <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="button" id="add-prodForm-row" class="add-row" value="+" onclick="addForm()">
+    <br>
+    <br>
+    <input type="submit" name="submit" value="Submit">
+    <input type="submit" name="save" value="Save">
+</form>
+</div>
+
+{% endblock %}
+{% block script %}
+<script type = "text/javascript">
+    var tasks = {{ tasks|safe }};
+    var tarr = {{ tarr|safe }};
+</script>
+
+<!--<script type = "text/javascript" src="{% static 'js/forms.js' %}"></script>
+<script type = "text/javascript" src="{% static 'js/detector_form.js' %}"></script>
+-->
+{% endblock %}

@@ -1,0 +1,24 @@
+
+.title{
+    text-align: center;
+    font-size: 30px;
+}
+.section-title{
+    font-size: 24px;
+}
+
+.buttonDivs{
+    margin: 50px auto;
+    text-align: center;
+}
+.buttonContainer{
+    margin: 10px;
+}
+[name=save-status]{
+    position: absolute;
+    margin: 10px;
+}
+.divBody{
+    width:max-content;
+    max-width: 1100px;
+}

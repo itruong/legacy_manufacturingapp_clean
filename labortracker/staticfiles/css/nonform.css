@@ -1,0 +1,19 @@
+input[type=text], input[type=password], input[type=email], input[type=url],
+input[type=number], input[type=tel], textarea, select, .vTextField {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 6px;
+    margin-top: 0;
+}
+
+#content{
+    width: min-content;
+    box-shadow: lightgray 0px 0px 8px 0px;
+    margin: 0px auto;
+    border-radius: 10px;
+    padding: 50px 20px;
+}
+
+div.colM{
+    top: 50%;
+}

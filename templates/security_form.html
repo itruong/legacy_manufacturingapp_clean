@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Systems Form
+{% endblock %}
+
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/formstyle.css' %}">
+{% endblock %}
+
+{% block body %}
+<img class="alogo" src="{% static 'img/analogic_logo.png' %}" alt="Analogic Corporation" style="width: 30%; height: 30%">
+<h2 id="title">Detection Systems Weekly Direct Labor Reporting</h2>
+
+<div id="content">
+<h1 id="welcome">Welcome,
+    {% if user.get_full_name|length > 0 %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.get_full_name }}</a>
+    {% else %}
+        <a class="nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
+    {% endif %}
+</h1>
+<a href="{% url 'login' %}?next={% firstof request.path %}"><div id="change_user">Not you? Login as a different user</div></a>
+
+<datalist id="systemlist"></datalist>
+
+<datalist id="wtypelist"></datalist>
+
+<form id="form" method="post" autocomplete="off">
+    {% csrf_token %}
+    <div class="required">
+        <div class="errortext">{{ date_form.date.errors | striptags }} </div>
+        <br>      
+        <span id='date_label'>Week of:</span>
+        {{ date_form.date }}
+    </div>
+    <br>
+    <table cellspacing="0" cellpadding="0" id="divLabTable" class="divTable">
+        <tbody id="tablebody">
+        <tr class="divTableRow">
+            <th class="deleteCell"></th>
+            <th  name="systemHead">System</th>
+            <th  name="serialHead">Serial No.</th>
+            <th  name="opHead">Op No.</th>
+            <th  name="wtypeHead">Work Type</th>
+            <th class="divTableHead" colspan=1 name="commentsHead">Comments</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sun<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Mon<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Tue<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Wed<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Thu<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableDays[]">Fri<br>Hrs</th>
+            <th class="divTableHead" id="weekend" colspan=1 name="taskTableDays[]">Sat<br>Hrs</th>
+            <th class="divTableHead" colspan=1 name="taskTableTot"><br>Total<br>Hrs</th>
+        </tr>
+        {{ formset_0.management_form }}
+        {% for form in formset_0 %}
+            <span class='error'>{{ form.non_field_errors | striptags }} </span>
+            {% for field in form %}
+                {% if forloop.first %}
+                <tr id="form-row-{{ forloop.parentloop.counter0 }}" class="divTableRow" name="taskTableRow[]">
+                    <datalist id="oplist-{{ forloop.parentloop.counter0 }}"></datalist>
+                    <td class=deleteCell>
+                        <a id="delete-form-row-{{ forloop.parentloop.counter0 }}" class="delete-row" onclick="deleteForm(this.id)">✘</a>
+                        <input type="image" src="{% static 'img/copy interface symbol.png' %}" id="copy-form-row-{{ forloop.parentloop.counter0 }}" class="copy-row" onclick="duplicateForm(this.id); /*loadDatalist('oplist', opLists, systemList, 'id_form-{{ forloop.parentloop.counter0 }}-sys_0');*/ return false;">
+                    </td>
+                    <td class="divTableCell">
+                        {% if field.errors %}
+                            <div class=tooltip name=error>
+                                {{ field }}
+                                <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </td>
+                {% elif forloop.last %}
+                    <td class="divTableTot" id="formtotal{{forloop.parentloop.counter0}}">0</td>
+                    <!--<td class="divTableComments"></td>-->
+                    <td style="display: none">{{ field }}</td>
+                </tr>
+                {% else %}
+                    <td class="divTableCell">
+                        {% if field.errors %}
+                            <div class=tooltip name=error>
+                                {{ field }}
+                                <span class="tooltiptext">{{ field.errors | striptags }}</span>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <tr class="divTableRow" name="taskTableRow">
+            <th class="divTableHead" name="dailyTotalHead" colspan=6>Total Hours</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableHead" name="dailyTotal">0</th>
+            <th class="divTableTot" name="dailyTotalTot">0</th>
+        </tr>
+        </tbody>
+    </table>
+    
+    <input type="button" id="add-form-row" class="add-row" value="+" onclick="addForm()">
+    <br>
+    <br>
+    <input type="button" class="submit" value="Submit" onclick="return submitForm('csrfmiddlewaretoken={{ csrf_token }}&data=connect');">
+</form>
+</div>
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>Error:</h1>
+        <p></p>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script type = "text/javascript" src="{% static 'js/forms.js' %}"></script>
+<script type="text/javascript">
+
+//-----------Load-----------//
+    var systemFields = {{ systemFields|safe }};
+    var opFields = {{ opFields|safe }};
+    var wtypeFields = {{ wtypeFields|safe }};
+    var error = {{ error|safe }};
+    var disable = {{ disable|safe }};
+//-----------Functions-----------//
+    function addForm(){
+        var formTot = document.getElementById('id_form-TOTAL_FORMS');
+        var rowElement = storedRow.cloneNode(true);
+        renameRow(rowElement, formTot.value);
+        var newOplist = document.createElement('datalist');
+        newOplist.setAttribute('id', 'oplist-'+formTot.value);
+        document.getElementById('form').appendChild(newOplist);
+
+        var tab = document.getElementById('tablebody');
+        var row = tab.insertRow(tab.rows.length-1);
+        row.outerHTML = rowElement.outerHTML;
+        row.innerHTML = rowElement.innerHTML;
+
+        formTot.value = parseInt(formTot.value)+1;
+        
+        //disable('id_form-'+(formTot.value-1)+'-sys_0', systemList);
+    }
+    function deleteForm(id){
+        var formTot = document.getElementById('id_form-TOTAL_FORMS');
+        var formnum = id.substring(16);
+        var tab = document.getElementById("divLabTable");
+        var rowNum = parseInt(formnum)+1;
+        var delOplist = document.getElementById('oplist-'+formnum);
+        delOplist.parentNode.removeChild(delOplist);
+        tab.deleteRow(rowNum);
+        var delBox = document.createElement('input');
+        delBox.setAttribute('type', 'checkbox');
+        delBox.setAttribute('name', 'form-'+formnum+"-DELETE");
+        delBox.setAttribute('id', 'id_form-'+formnum+"-DELETE");
+        delBox.setAttribute('checked', 'true')
+        formTot.value = formTot.value-1;
+        for(var i=rowNum; i<=formTot.value; i++){
+            reorderNext(i, 'form-row-'+i);
+        }
+        calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    }
+    function duplicateForm(id){
+        var formTot = document.getElementById('id_form-TOTAL_FORMS');
+        var formnum = id.substring(14);
+        var newformnum = formTot.value;
+        var rowElement = document.getElementById('form-row-'+formnum).cloneNode(true);
+        renameRow(rowElement, newformnum);
+        var newOplist = document.createElement('datalist');
+        newOplist.setAttribute('id', 'oplist-'+newformnum);
+        document.getElementById('form').appendChild(newOplist);
+        formTot.value = parseInt(newformnum)+1;
+        var tab = document.getElementById('tablebody');
+        var row = tab.insertRow(tab.rows.length-1);
+        row.outerHTML = rowElement.outerHTML;
+        row.innerHTML = rowElement.innerHTML;
+        loadDatalist("oplist", opLists, systemList, 'id_form-'+newformnum+'-sys_0');
+        calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    } 
+    function reorderNext(rowNum, rowId){
+        var formnum = rowNum-1;
+        var rowElement = document.getElementById(rowId);
+        renameRow(rowElement, formnum);
+        var reorderOplist = document.getElementById('oplist-'+rowNum);
+        reorderOplist.setAttribute('id', 'oplist-'+formnum);
+    }  
+    function loadDatalist(datalist_pref, fields_toLoad, fields_toCheck, id){
+        var endnum = id.match(/-[0-9]+-/g)[0];
+        endnum = endnum.substring(0, endnum.length-1);
+        var datalist = document.getElementById(datalist_pref+endnum);
+        var index = 0;
+        var options = fields_toCheck.children;
+        var val = document.getElementById(id).value;
+        for (var i=0;i<options.length;i++){
+            if(val == options[i].value){
+                datalist.innerHTML = fields_toLoad[index].innerHTML;
+                return;
+            }
+            index++;
+        }
+        datalist.innerHTML = "";
+    }
+    /*
+    function disable(id, fields_toCheck){
+        var val = document.getElementById(id).value;
+        var options = fields_toCheck.children;
+        for (var i=1;i<options.length;i++){
+            if(val == options[i].value){
+                document.getElementById(id.substring(0, id.length-5)+"sns_0").removeAttribute('disabled');
+                document.getElementById(id.substring(0, id.length-5)+"ops_0").removeAttribute('disabled');
+                document.getElementById(id.substring(0, id.length-5)+"wty_0").removeAttribute('disabled');
+                return;
+            }
+        }
+        document.getElementById(id.substring(0, id.length-5)+"sns_0").setAttribute('disabled', 'disabled');
+        document.getElementById(id.substring(0, id.length-5)+"ops_0").setAttribute('disabled', 'disabled');
+        document.getElementById(id.substring(0, id.length-5)+"wty_0").setAttribute('disabled', 'disabled');
+    }
+    */
+    function renameRow(rowElement, newNum){
+        rowElement.setAttribute('id', "form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/-[0-9]+-/g, "-"+newNum+"-");
+        rowElement.innerHTML = rowElement.innerHTML.replace(/formtotal[0-9]+/g, "formtotal"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/delete-form-row-[0-9]+/g, "delete-form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/copy-form-row-[0-9]+/g, "copy-form-row-"+newNum);
+        rowElement.innerHTML = rowElement.innerHTML.replace(/oplist-[0-9]+/g, "oplist-"+newNum);
+    }
+
+//-----------Script-----------//
+    attachDatalists("ops_sel[]");
+
+    var storedRow = document.getElementById('form-row-0').cloneNode(true);
+    storedRow.innerHTML = storedRow.innerHTML.replace(/value="[^"]*"/g, "");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/>.*<\/textarea>/g, "></textarea>");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/<div class="tooltip" name="error">/g, "");
+    storedRow.innerHTML = storedRow.innerHTML.replace(/<span class="tooltiptext">(.*)<\/span>/g, "");
+
+    calcTotLabInit("id_form-0-tal_0", 1, "total");
+    calcDailyLabInit("id_form-0-tal_0", 1, 'dailyTotal', ['form']);
+    
+    showDateLabels("taskTableDays[]", document.getElementById("id_date").value);
+    showCols("taskTableDays[]", "Hrs")
+    var systemList = document.getElementById('systemlist');
+    var wtypeList = document.getElementById('wtypelist');
+    fillDatalist(systemFields, systemList);
+    fillDatalist(wtypeFields, wtypeList);
+    var opList = document.getElementById('oplist');
+    var index = 0;
+    var opLists = [];
+
+    //Load oplist
+    opFields.forEach(function(item){
+        opLists.push(document.createElement('datalist'));
+        item.forEach(function(item1){
+            var opt = document.createElement("option");
+            opt.value = item1;
+            opLists[index].appendChild(opt);
+        });
+        index++;
+    });
+    var formTot = document.getElementById('id_form-TOTAL_FORMS').value;
+    for (var i=0;i<formTot;i++){
+        loadDatalist("oplist", opLists, systemList, 'id_form-'+i+'-sys_0');
+        //disable('id_form-'+i+'-sys_0', systemList)
+    }
+
+    if(error){
+        showError('The form failed to save or submit; please correct the errors shown.');
+    }
+    if(disable)
+        disabled(disable);
+        //window.alert("The form failed to save or submit; please correct the errors shown.")
+</script>
+{% endblock %}
+

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Management Overview
+{% endblock %}
+
+{% block body %}
+<h1>Systems</h1>
+<a href="" target="_blank">View Data</a>
+<br>
+<a href="{% url 'systems_analyze' %}">(Legacy) View Data</a>
+<br>
+<a href="{% url 'systems_submissions' %}">View Submissions</a>
+<br><br>
+<h1>DAS & Detector</h1>
+<a href="" target="_blank">View Data</a>
+<br>
+<a href="{% url 'detector_analyze' %}">(Legacy) View Data</a>
+<br>
+<a href="{% url 'detector_submissions' %}">View Submissions</a>
+<br>
+<a href="{% url 'detector_settings' %}">View and Change Settings</a>
+{% endblock %}

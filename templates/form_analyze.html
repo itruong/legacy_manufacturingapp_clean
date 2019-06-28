@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Analysis
+{% endblock %}
+
+{% block stylesheet %}
+    <link rel="stylesheet" href="{% static 'css/charts.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div id="download" class='figure'><button class="submit" id='compiled' onclick="getData(this.id, 'systems_data', '{{ csrf_token }}')">Download Systems Data</button></div>
+
+    <div id='config'>
+        
+    </div>
+
+{% endblock %}
+{% block script %}
+<script type = "text/javascript">
+    //var df = {{ df|safe }};
+    //var df2 = {{ df2|safe }};
+    var dataset = {{ dataset|safe }};
+    var data_keys = {{ data_keys|safe }};
+    var wtypes = {{ wtype_fields|safe }};
+
+</script>
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
+<script type = "text/javascript" src="{% static 'js/form_analyze.js' %}"></script>
+<script type="text/javascript">
+
+    
+
+//---------Script----------//
+
+var systems = Object.keys(dataset);
+
+var i = 0;
+var sys = systems[i];
+var labor_totals = ['TOTAL','SYSTEM ASSEMBLY', 'SYSTEM TEST'];
+var ops = data_keys[sys];
+var data = dataset[sys];
+for (const row of data){
+    for (const name of [].concat(ops, wtypes)){
+        row[name] = {'Hours': row[name], 'Days':8};
+    }
+}
+
+
+var figure = new InteractiveController(document.querySelector('.divBody'), i, data, sys, {'Dim1':{'Labor Totals':labor_totals,'Operations':ops,'Work Types':wtypes}}, ['Hours', 'Days']);
+    //var ops = data_keys['ANCP00'];
+var total_hrs = 0;
+var assembly_hrs = 0;
+var test_hrs = 0;
+var min_total = 0;
+var min_assembly = 0;
+var min_test = 0;
+figure.data.forEach(function (d) {
+    var i_total_hrs = {'Hours':0,'Days':0};
+    var i_assembly_hrs = {'Hours':0,'Days':0};
+    var i_test_hrs = {'Hours':0,'Days':0};
+    ops.forEach(function (key){
+        i_total_hrs['Hours'] += d[key]['Hours'];
+        i_total_hrs['Days'] += d[key]['Days'];
+        if(key == 'TEST'){
+            i_test_hrs['Hours'] += d[key]['Hours'];
+            i_test_hrs['Days'] += d[key]['Days'];
+        }
+        
+        else{
+            i_assembly_hrs['Hours'] += d[key]['Hours'];
+            i_assembly_hrs['Days'] += d[key]['Days'];
+        }
+    });
+    d['TOTAL'] = i_total_hrs;
+    d['SYSTEM ASSEMBLY'] = i_assembly_hrs;
+    d['SYSTEM TEST'] = i_test_hrs;
+    if(i_total_hrs > total_hrs)
+        total_hrs = i_total_hrs;
+    if(i_total_hrs < min_total || min_total == 0)
+        min_total = i_total_hrs
+    if(i_assembly_hrs > assembly_hrs)
+        assembly_hrs = i_assembly_hrs;
+    if(i_assembly_hrs < min_assembly || min_assembly == 0)
+        min_assembly = i_assembly_hrs
+    if(i_test_hrs > test_hrs)
+        test_hrs = i_test_hrs;
+    if(i_test_hrs < min_test || min_test == 0)
+        min_test = i_test_hrs
+});
+var graph = new InteractiveGraph(figure, i, 'serial', 'hours');
+var toggle = new ToggleTable(figure, i);
+//graph.max_hrs_dict = {'TOTAL': total_hrs, 'SYSTEM ASSEMBLY': assembly_hrs, 'SYSTEM TEST': test_hrs};
+//graph.max_eff_dict = {'TOTAL': (total_hrs < graph.std['TOTAL']) ? 100*graph.std['TOTAL']/min_total : 100*graph.std['TOTAL']/min_total, 'SYSTEM ASSEMBLY': (assembly_hrs < graph.std['SYSTEM ASSEMBLY']) ? 100*graph.std['SYSTEM ASSEMBLY']/min_assembly : 100*graph.std['SYSTEM ASSEMBLY']/min_assembly, 'SYSTEM TEST': (test_hrs < graph.std['SYSTEM TEST']) ? 100*graph.std['SYSTEM TEST']/min_test : 100*graph.std['SYSTEM TEST']/min_test};
+//graph.max_eff_dict = {'TOTAL': (min_total < graph.std['TOTAL']) ? 100 : 100*graph.std['TOTAL']/min_total, 'SYSTEM ASSEMBLY': (min_assembly < graph.std['SYSTEM ASSEMBLY']) ? 100 : 100*graph.std['SYSTEM ASSEMBLY']/min_assembly, 'SYSTEM TEST': (min_test < graph.std['SYSTEM TEST']) ? 100 : 100*graph.std['SYSTEM TEST']/min_test};
+/*
+    var systems = Object.keys(dataset);
+    for(var i=0;i<systems.length;i++){
+        
+        var sys = systems[i];
+        var figure = new InteractiveController(i, dataset[sys]);
+        figure.setTitle(sys);
+        var graph = new SystemsGraph
+        (
+            figure, 
+            i,
+            data_keys[sys], 
+            wtypes, 
+            sys,
+            {'TOTAL':140,'SYSTEM ASSEMBLY':100, 'SYSTEM TEST':40},
+        );
+
+        var total_hrs = 0;
+        var assembly_hrs = 0;
+        var test_hrs = 0;
+        var min_total = 0;
+        var min_assembly = 0;
+        var min_test = 0;
+        graph.data.forEach(function (d) {
+            var i_total_hrs = 0;
+            var i_assembly_hrs = 0;
+            var i_test_hrs = 0;
+            graph.ops.forEach(function (key){
+                i_total_hrs += d[key];
+                if(key == 'TEST')
+                    i_test_hrs = d[key];
+                else
+                    i_assembly_hrs += d[key]
+            });
+            d['TOTAL'] = i_total_hrs;
+            d['SYSTEM ASSEMBLY'] = i_assembly_hrs;
+            d['SYSTEM TEST'] = i_test_hrs;
+            if(i_total_hrs > total_hrs)
+                total_hrs = i_total_hrs;
+            if(i_total_hrs < min_total || min_total == 0)
+                min_total = i_total_hrs
+            if(i_assembly_hrs > assembly_hrs)
+                assembly_hrs = i_assembly_hrs;
+            if(i_assembly_hrs < min_assembly || min_assembly == 0)
+                min_assembly = i_assembly_hrs
+            if(i_test_hrs > test_hrs)
+                test_hrs = i_test_hrs;
+            if(i_test_hrs < min_test || min_test == 0)
+                min_test = i_test_hrs
+        });
+        graph.max_hrs_dict = {'TOTAL': total_hrs, 'SYSTEM ASSEMBLY': assembly_hrs, 'SYSTEM TEST': test_hrs};
+        //graph.max_eff_dict = {'TOTAL': (total_hrs < graph.std['TOTAL']) ? 100*graph.std['TOTAL']/min_total : 100*graph.std['TOTAL']/min_total, 'SYSTEM ASSEMBLY': (assembly_hrs < graph.std['SYSTEM ASSEMBLY']) ? 100*graph.std['SYSTEM ASSEMBLY']/min_assembly : 100*graph.std['SYSTEM ASSEMBLY']/min_assembly, 'SYSTEM TEST': (test_hrs < graph.std['SYSTEM TEST']) ? 100*graph.std['SYSTEM TEST']/min_test : 100*graph.std['SYSTEM TEST']/min_test};
+        graph.max_eff_dict = {'TOTAL': (min_total < graph.std['TOTAL']) ? 100 : 100*graph.std['TOTAL']/min_total, 'SYSTEM ASSEMBLY': (min_assembly < graph.std['SYSTEM ASSEMBLY']) ? 100 : 100*graph.std['SYSTEM ASSEMBLY']/min_assembly, 'SYSTEM TEST': (min_test < graph.std['SYSTEM TEST']) ? 100 : 100*graph.std['SYSTEM TEST']/min_test};
+
+        graph.addAxisProperty = addAxisProperty;
+        graph.inputAxisValue = inputAxisValue;
+        graph.loadToggle = loadToggle;
+        graph.setAxisValue = setAxisValue;
+        graph.toggleGraphs = toggleGraphs;
+        graph.toggleChecks = toggleChecks;
+        graph.createDataTable = createDataTable;
+        graph.createDataTableValues = createDataTableValues;
+        graph.createDurations = createDurations;
+        graph.createSysTable = createSysTable;
+        graph.figure.graph = graph;
+        */
+        /*
+        Prevents context menu
+        */
+       /*
+        graph.figure.querySelector('svg').addEventListener('contextmenu',function(event){
+            event.preventDefault();
+            showContext(event)
+            return false;
+        }, false);
+        graph.figure.querySelector('[id=unit-hours]').checked = true;
+        graph.assigned_colors['SYSTEM ASSEMBLY'] = "steelblue";
+        graph.assigned_colors['SYSTEM TEST'] = 'darkorange';
+
+        graph.addAxisProperty();
+        graph.createDurations();
+        graph.max_days_dict = {};
+        graph.all_labels.forEach(function(label){
+            graph.max_days_dict[label] = d3.max(graph.all_durations, function(d){ return d[label]});
+        });
+        graph.createDataTableValues();
+        graph.createDataTable();
+        //document.querySelectorAll('span')[1].ondblclick = () => this.inputAxisValue(sys_label1,0);
+    }*/
+</script>
+{% endblock %}

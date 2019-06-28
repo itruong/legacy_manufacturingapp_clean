@@ -1,0 +1,510 @@
+{% load static %}<!--<!DOCTYPE html>-->
+<html>
+<head>
+	<link rel="stylesheet" href="{% static 'css/formstyle.css' %}">
+	<title>Efficiency form</title>
+</head>
+<body>
+
+<img class="alogo" src="{% static 'img/analogic_logo.png' %}" alt="Analogic Corporation">
+
+    <h2 id="title">Detector Lab Weekly Direct Labor Reporting</h2>
+
+<form id="form" method="post">
+    {% csrf_token %}
+	<div class="divTable top" width="100%">
+		<div class="divTableRow">
+			<div class="divTableCell required">Name:</div>
+			<div class="divTableCell">
+				<select id="name" name="name" required>
+					<option value="">Select Name</option>
+					<option value="Ivan Truong">Ivan Truong</option>
+					<option value="Jeny Kwon">Jeny Kwon</option>
+				</select>
+			</div>
+	</div>
+		<div class="divTableRow">
+			<div class="divTableCell required">Week starting (Sun):</div>
+			<div class="divTableCell"><input type="date" name="week" required/></div>
+		</div>
+	</div>
+	
+	
+	<table id="divLabor">
+		<tr>
+			<th class="headCell">Diverted Labor (Hours)</th>
+			<th>SUN</th>
+			<th>MON</th>
+			<th>TUE</th>
+			<th>WED</th>
+			<th>THU</th>
+			<th>FRI</th>
+			<th>SAT</th>
+			<th>TOTAL</th>
+		</tr>
+		<tr>
+			<td>Group Leader Activities</td>
+			<td><input id="a0"/></td>
+			<td><input id="a1"/></td>
+			<td><input id="a2"/></td>
+			<td><input id="a3"/></td>
+			<td><input id="a4"/></td>
+			<td><input id="a5"/></td>
+			<td><input id="a6"/></td>
+			<td>
+				<p id="at">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Material Issues</td>
+			<td><input id="b0"/></td>
+			<td><input id="b1"/></td>
+			<td><input id="b2"/></td>
+			<td><input id="b3"/></td>
+			<td><input id="b4"/></td>
+			<td><input id="b5"/></td>
+			<td><input id="b6"/></td>
+			<td>
+				<p id="bt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>ECO / Dev. Rework</td>
+			<td><input id="c0"/></td>
+			<td><input id="c1"/></td>
+			<td><input id="c2"/></td>
+			<td><input id="c3"/></td>
+			<td><input id="c4"/></td>
+			<td><input id="c5"/></td>
+			<td><input id="c6"/></td>
+			<td>
+				<p id="ct">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Engineering Rework</td>
+			<td><input id="d0"/></td>
+			<td><input id="d1"/></td>
+			<td><input id="d2"/></td>
+			<td><input id="d3"/></td>
+			<td><input id="d4"/></td>
+			<td><input id="d5"/></td>
+			<td><input id="d6"/></td>
+			<td>
+				<p id="dt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Lab Cleaning</td>
+			<td><input id="e0"/></td>
+			<td><input id="e1"/></td>
+			<td><input id="e2"/></td>
+			<td><input id="e3"/></td>
+			<td><input id="e4"/></td>
+			<td><input id="e5"/></td>
+			<td><input id="e6"/></td>
+			<td>
+				<p id="et">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Quality Audit</td>
+			<td><input id="f0"/></td>
+			<td><input id="f1"/></td>
+			<td><input id="f2"/></td>
+			<td><input id="f3"/></td>
+			<td><input id="f4"/></td>
+			<td><input id="f5"/></td>
+			<td><input id="f6"/></td>
+			<td>
+				<p id="ft">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>SAP Transactions</td>
+			<td><input id="g0"/></td>
+			<td><input id="g1"/></td>
+			<td><input id="g2"/></td>
+			<td><input id="g3"/></td>
+			<td><input id="g4"/></td>
+			<td><input id="g5"/></td>
+			<td><input id="g6"/></td>
+			<td>
+				<p id="gt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Machine / Test Equipment Down</td>
+			<td><input id="h0"/></td>
+			<td><input id="h1"/></td>
+			<td><input id="h2"/></td>
+			<td><input id="h3"/></td>
+			<td><input id="h4"/></td>
+			<td><input id="h5"/></td>
+			<td><input id="h6"/></td>
+			<td>
+				<p id="ht">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Preventative Maintenance</td>
+			<td><input id="i0"/></td>
+			<td><input id="i1"/></td>
+			<td><input id="i2"/></td>
+			<td><input id="i3"/></td>
+			<td><input id="i4"/></td>
+			<td><input id="i5"/></td>
+			<td><input id="i6"/></td>
+			<td>
+				<p id="it">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Deferred Labor</td>
+			<td><input id="j0"/></td>
+			<td><input id="j1"/></td>
+			<td><input id="j2"/></td>
+			<td><input id="j3"/></td>
+			<td><input id="j4"/></td>
+			<td><input id="j5"/></td>
+			<td><input id="j6"/></td>
+			<td>
+				<p id="jt">0</p>
+			</td>
+		</tr>
+	</table>
+	
+	<table id="nonSAP">
+		<tr>
+			<th class="headCell">Non-SAP Labor (Hours)</th>
+			<th>SUN</th>
+			<th>MON</th>
+			<th>TUE</th>
+			<th>WED</th>
+			<th>THU</th>
+			<th>FRI</th>
+			<th>SAT</th>
+			<th>TOTAL</th>
+		</tr>
+		<tr>
+			<td>Warranty CHG No. 20800401</td>
+			<td><input id="k0"/></td>
+			<td><input id="k1"/></td>
+			<td><input id="k2"/></td>
+			<td><input id="k3"/></td>
+			<td><input id="k4"/></td>
+			<td><input id="k5"/></td>
+			<td><input id="k6"/></td>
+			<td>
+				<p id="kt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Non-Warranty CHG No. 20800402</td>
+			<td><input id="l0"/></td>
+			<td><input id="l1"/></td>
+			<td><input id="l2"/></td>
+			<td><input id="l3"/></td>
+			<td><input id="l4"/></td>
+			<td><input id="l5"/></td>
+			<td><input id="l6"/></td>
+			<td>
+				<p id="lt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Vector Charge No.</td>
+			<td><input id="m0"/></td>
+			<td><input id="m1"/></td>
+			<td><input id="m2"/></td>
+			<td><input id="m3"/></td>
+			<td><input id="m4"/></td>
+			<td><input id="m5"/></td>
+			<td><input id="m6"/></td>
+			<td>
+				<p id="mt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Kangda 80 Charge No.</td>
+			<td><input id="n0"/></td>
+			<td><input id="n1"/></td>
+			<td><input id="n2"/></td>
+			<td><input id="n3"/></td>
+			<td><input id="n4"/></td>
+			<td><input id="n5"/></td>
+			<td><input id="n6"/></td>
+			<td>
+				<p id="nt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Charge No.</td>
+			<td><input id="o0"/></td>
+			<td><input id="o1"/></td>
+			<td><input id="o2"/></td>
+			<td><input id="o3"/></td>
+			<td><input id="o4"/></td>
+			<td><input id="o5"/></td>
+			<td><input id="o6"/></td>
+			<td>
+				<p id="ot">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Charge No.</td>
+			<td><input id="p0"/></td>
+			<td><input id="p1"/></td>
+			<td><input id="p2"/></td>
+			<td><input id="p3"/></td>
+			<td><input id="p4"/></td>
+			<td><input id="p5"/></td>
+			<td><input id="p6"/></td>
+			<td>
+				<p id="pt">0</p>
+			</td>
+		</tr>
+	</table>	
+	
+	<table id="prodLog">
+		<br>
+			<caption>Daily Production Log</caption>
+		<tr>
+			<th width="7%">Task No.</th>
+			<th width="8%">Part No.</th>
+			<th width="20%">Desc</th>
+			<th>SUN<br>Qty</th>
+			<th>MON<br>Qty</th>
+			<th>TUE<br>Qty</th>
+			<th>WED<br>Qty</th>
+			<th>THU<br>Qty</th>
+			<th>FRI<br>Qty</th>
+			<th>SAT<br>Qty</th>
+			<th>TOTAL<br>Qty</th>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv0"></div>
+			</td>
+			<td>
+				<p id="pn0">N/A<p>
+			</td>
+			<td>
+				<p id="de0">N/A<p>
+			</td>
+			<td><input type="number" id="qa0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qa6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qat">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv1"></div>
+			</td>
+			<td>
+				<p id="pn1">N/A<p>
+			</td>
+			<td>
+				<p id="de1">N/A<p>
+			</td>
+			<td><input type="number" id="qb0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qb6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qbt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv2"></div>
+			</td>
+			<td>
+				<p id="pn2">N/A<p>
+			</td>
+			<td>
+				<p id="de2">N/A<p>
+			</td>
+			<td><input type="number" id="qc0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qc6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qct">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv3"></div>
+			</td>
+			<td>
+				<p id="pn3">N/A<p>
+			</td>
+			<td>
+				<p id="de3">N/A<p>
+			</td>
+			<td><input type="number" id="qd0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qd6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qdt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv4"></div>
+			</td>
+			<td>
+				<p id="pn4">N/A<p>
+			</td>
+			<td>
+				<p id="de4">N/A<p>
+			</td>
+			<td><input type="number" id="qe0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qe6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qet">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv5"></div>
+			</td>
+			<td>
+				<p id="pn5">N/A<p>
+			</td>
+			<td>
+				<p id="de5">N/A<p>
+			</td>
+			<td><input type="number" id="qf0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qf6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qft">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv6"></div>
+			</td>
+			<td>
+				<p id="pn6">N/A<p>
+			</td>
+			<td>
+				<p id="de6">N/A<p>
+			</td>
+			<td><input type="number" id="qg0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qg6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qgt">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv7"></div>
+			</td>
+			<td>
+				<p id="pn7">N/A<p>
+			</td>
+			<td>
+				<p id="de7">N/A<p>
+			</td>
+			<td><input type="number" id="qh0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qh6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qht">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv8"></div>
+			</td>
+			<td>
+				<p id="pn8">N/A<p>
+			</td>
+			<td>
+				<p id="de8">N/A<p>
+			</td>
+			<td><input type="number" id="qi0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qi6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qit">0</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<div id="tDiv9"></div>
+			</td>
+			<td>
+				<p id="pn9">N/A<p>
+			</td>
+			<td>
+				<p id="de9">N/A<p>
+			</td>
+			<td><input type="number" id="qj0" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj1" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj2" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj3" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj4" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj5" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td><input type="number" id="qj6" name="qt[]" min="0" step="1" oninput="this.value=Math.abs(this.value); calcDivLab(this.id.substring(0,2), 7, 0)"/></td>
+			<td>
+				<p id="qjt">0</p>
+			</td>
+		</tr>
+	</table>
+	<input type="submit" />
+</form>
+<br>
+<br>
+by ivan truong 1
+<script type = "text/javascript">
+    var tasks = {{ tasks|safe }};
+    var tarr = {{ tarr|safe }};
+    //alert(tasks[1]);
+</script>
+<script type = "text/javascript" src="{% static 'js/formjs.js' %}"></script>
+
+<!--<script type = "text/javascript" src = "jquery-3.3.1.min.js"></script>-->
+</body>
+</html>

@@ -1,0 +1,84 @@
+body, table, td{
+    text-align: center;
+}
+td, th{
+    padding: initial;
+}
+table{
+    margin: auto;
+}
+
+div.divBody{
+    padding: 20px 90px 20px 40px;
+}
+
+#date_select{
+    font-size: 24px;
+    font-weight: 300;
+    margin: 0px 0 30px 0;
+}
+
+button.buttons{
+    cursor: pointer;
+    font-size: 30px;
+    padding: 3px 20px;
+    border: none;
+    background-color: transparent;
+    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 300;
+    outline: none;
+}
+.buttons:hover{
+	text-shadow: 1px 2px 2px lightgray, -1px -2px 2px lightgray;
+}
+
+table#user_table{
+    width: min-content;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+table#user_table > tbody > tr{
+    background-color: initial;
+    height:25px;
+}
+
+table#user_table > tbody > tr:nth-child(even){
+	background-color:#d3edff;
+	/*background-color: rgb(218, 230, 240);*/
+}
+table#user_table > tbody > tr > th{
+    font-weight: 300;
+    font-size: 18px;
+    background-color: initial;
+}
+table td+td{
+	border-left:1px solid rgba(128,128,128,0.3);
+}
+table tr+tr{
+    border-top:1px solid rgba(128,128,128,0.3);
+	border-bottom:1px solid rgba(128,128,128,0.3);
+}
+th.user_table_label{
+    width:200px;
+    transform:
+        translate(0, 51px);
+}
+
+th.user_table_head{
+    width: 50px;
+    height: 140px;
+    white-space: nowrap;
+}
+
+th.user_table_head > div{
+    transform:
+        translate(37px, 53px)
+        rotate(315deg);
+    width: 25px;
+}
+
+th.user_table_head > div > span {
+    border-bottom: 1px solid lightgray;
+    padding: 0px 10px;
+  }

@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px segoe ui;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.browser text {
+  text-anchor: end;
+}
+
+</style>
+<body>
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
+<script>
+  
+
+  function get_colors(n) {
+    var colors = ["#a6cee3","#1f78b4","#b2df8a","#33a02c",
+    "#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6",
+    "#6a3d9a"];
+    return colors[ n % colors.length];}
+  
+var margin = {top: 61, right: 140, bottom: 101, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+svg.append("text")
+    .attr("x", 0)
+    .attr("y", -40)
+    .attr("dy", "0.71em")
+    .attr("fill", "#000")
+    .text("Labor Allocation Per System")
+    .style("font", "23px segoe ui")
+    .style("fill", "#000000");
+  
+  
+svg.append("text")
+    .attr("x", 0)
+    .attr("y", 402)
+    .attr("dy", "0em")
+    .style("font", "12px segoe ui")
+    .style("fill", "#000000")
+    .text("Part shortages:");
+  
+svg.append("text")
+    .attr("x", 0)
+    .attr("y", 402)
+    .attr("dy", "1em")
+    .style("font", "12px segoe ui")
+    .style("fill", "#000000")
+    .text("Squad members:");
+  
+svg.append("text")
+    .attr("x", 0)
+    .attr("y", 402)
+    .attr("dy", "3em")
+    .style("font", "12px segoe ui")
+    .style("fill", "#000000")
+    .text("By Ivan Truong")
+    .style("font-weight", "bold");
+   
+var data = [{"serial": "0001","OP10":60,"OP20":30,"OP30":40,"OP40":15,"OP50":30},
+            {"serial": "0002","OP10":57,"OP20":35,"OP30":35,"OP40":17,"OP50":29},
+            {"serial": "0003","OP10":50,"OP20":33,"OP30":30,"OP40":16,"OP50":30},
+            {"serial": "0006","OP10":55,"OP20":30,"OP30":30,"OP40":16,"OP50":29},
+            {"serial": "0007","OP10":49,"OP20":29,"OP30":31,"OP40":17,"OP50":30},
+            {"serial": "0009","OP10":50,"OP20":28,"OP30":30,"OP40":17,"OP50":29},
+            {"serial": "0010","OP10":60,"OP20":30,"OP30":40,"OP40":15,"OP50":30},
+            {"serial": "0011","OP10":57,"OP20":35,"OP30":35,"OP40":17,"OP50":29},
+            {"serial": "0012","OP10":50,"OP20":33,"OP30":30,"OP40":16,"OP50":30},
+            {"serial": "0013","OP10":55,"OP20":30,"OP30":30,"OP40":16,"OP50":29},
+            {"serial": "0014","OP10":49,"OP20":29,"OP30":31,"OP40":17,"OP50":30},
+            {"serial": "0015","OP10":50,"OP20":28,"OP30":30,"OP40":17,"OP50":29},
+        ]
+var serials = data.map(function(d) {return d.serial});
+var ranges = [];
+for(var i=0;i<serials.length;i++){
+    ranges.push(width*i/(serials.length-1));
+}
+var color = d3.scaleOrdinal(d3.schemeCategory10);   
+color.domain(d3.keys(data[0]).filter(function(key) {return key !== "serial"; }));
+var x = d3.scaleOrdinal()
+    .domain(serials)
+    .range(ranges);
+/*var x = d3.scaleLinear()
+    .domain(d3.extent(data, function(d) { return d.serial; }))
+    .range([0, width]);*/
+var y = d3.scaleLinear()
+    //.domain([0, d3.max(data, function(d) {return d.y; })])
+    .domain([0, 200])
+    .range([height, 0]);
+
+
+//var color = d3.scale.category10();
+
+var xAxis = d3.axisBottom()
+    .scale(x)
+	.ticks(20, "s");
+
+var yAxis = d3.axisLeft()
+    .scale(y)
+    .ticks(5, "s");
+
+var stack = d3.stack()
+    .keys(color.domain())
+    .order(d3.stackOrderNone)
+    .offset(d3.stackOffsetNone);
+    //.value(function(d) { return d.values; });
+var area = d3.area()
+    .x(function(d) { console.log(x(d.data.serial)); return x(d.data.serial); })
+    .y0(function(d) {return y(d[0]); })
+    .y1(function(d) {return y(d[1]); });
+
+//   // Find the value of the hour with highest total value
+/*
+  var maxHourVal = d3.max(data, function(d){
+    var vals = d3.keys(d).map(
+      function(key){ 
+        return key !== "hour" ? d[key] : 0 });
+    return d3.sum(vals);
+  });
+*/
+//   // Set domains for axes
+  //x.domain(d3.extent(data, function(d) { return d.hour; }));
+  //y.domain([0, 800])
+
+var layer = svg.selectAll(".layer")
+    .data(stack(data))
+    .enter().append("g")
+    .attr("class", "layer")
+    .attr('fill-opacity', 0.5);
+
+layer.append("path")
+    .attr("class", "area")
+    .attr("d", area)
+    .style('fill', function(d,i) { 
+    		return get_colors(i); });
+
+   svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis).append("text")
+   		.attr("x", 350)
+      .attr("y", 36)
+      .attr("fill", "#000")
+      .text("Serial Number")
+    	.style("font-weight", "bold");
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+  		.attr("x", -200)
+      .attr("y", -40)
+      //.attr("dy", "0.3408em")
+      .attr("fill", "#000")
+      .text("Hours")
+   		.style("font-weight", "bold");
+      
+   var legend = svg.selectAll(".legend")
+     	.data(color.domain()).enter()
+   		.append("g")
+    	.attr("class","legend")
+     .attr("transform", "translate(" + (width +20) + "," + 0+ ")");
+
+   legend.append("rect")
+     .attr("x", 0) 
+     .attr("y", function(d, i) { return 20 * i; })
+     .attr("width", 10)
+     .attr("height", 10)
+     .style("fill", function(d, i) {
+     	return get_colors(i);}); 
+   
+    legend.append("text")
+     .attr("x", 20) 
+     .attr("dy", "0.75em")
+     .attr("y", function(d, i) { return 20 * i; })
+     .text(function(d) {return d});
+      
+    legend.append("text")
+     .attr("x",0) 
+//      .attr("dy", "0.75em")
+     .attr("y",-10)
+     .text("Legend");
+
+
+
+
+</script>

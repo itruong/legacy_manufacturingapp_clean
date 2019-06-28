@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Analysis
+{% endblock %}
+
+{% block stylesheet %}
+{% endblock %}
+
+{% block body %}
+<div id='embedPBIContainer'></div>
+
+{% endblock %}
+{% block script %}
+<script src="{% static 'js/node_modules/powerbi-client/dist/powerbi.js' %}"></script>
+<script type = "text/javascript">
+
+var accessToken = {{ access_token|safe }};
+
+</script>
+<script type = "text/javascript">
+
+// Read embed application token from Model
+
+// Read embed URL from Model
+var embedUrl = "";
+embedUrl = 'https://app.powerbi.com/reportEmbed'
+// Read report Id from Model
+var embedReportId = {{ id|safe }};
+
+// Get models. models contains enums that can be used.
+var models = window['powerbi-client'].models;
+
+// Embed configuration used to describe what and how to embed.
+// This object is used when calling powerbi.embed.
+// This also includes settings and options such as filters.
+// You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
+var config = {
+    type: 'report',
+    tokenType: models.TokenType.Aad,
+    accessToken: accessToken,
+    embedUrl: embedUrl,
+    id: embedReportId,
+    permissions: models.Permissions.All,
+    settings: {
+        filterPaneEnabled: true,
+        navContentPaneEnabled: true
+    },
+};
+
+// Get a reference to the embedded report HTML element
+var reportContainer = document.getElementById('embedPBIContainer');
+
+// Embed the report and display it within the div container.
+var report = powerbi.embed(reportContainer, config);
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Analysis
+{% endblock %}
+
+{% block stylesheet %}
+    <link rel="stylesheet" href="{% static 'css/charts.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div id="download" class='figure'><button class="submit" id='compiled' onclick="getData(this.id, 'detector_data', '{{ csrf_token }}')">Download Detector Data</button></div>
+
+{% endblock %}
+{% block script %}
+<script type = "text/javascript">
+    //var df = {{ df|safe }};
+    //var df2 = {{ df2|safe }};
+    //var dataset = {{ dataset|safe }};
+    //var data_keys = {{ data_keys|safe }};
+    //var wtypes = {{ wtype_fields|safe }};
+
+</script>
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
+<script type = "text/javascript" src="{% static 'js/form_analyze.js' %}"></script>
+<script type="text/javascript">
+    var startDate = {{ startDate|safe }};
+    var startDate_millis = Date.parse(startDate);
+    var routings = {{ routings|safe }};
+    var allTasks = {{ allTasks|safe }};
+    var clientData = {{ clientData|safe }};
+    var nweeks = {{ nweeks|safe }};
+    var toggleGraph = true;
+    var allUsers = {{ allUsers|safe }};
+    var selectedUsers = allUsers;
+    var selectedTasks = allTasks;
+    var graphData = new Map();
+    //var gdata = []
+    //load gdata with list of dictionaries, each with week date as milliseconds
+
+    class ComponentDataGenerator extends DataGenerator{
+        constructor(data){
+            super(data);
+        }
+        generateData(visibleDim, params){
+            this.visibleDim = visibleDim
+            this.params = params
+            let gdata = []
+            for (let n = 0; n < nweeks; n++){
+                gdata.push({'week':Date.parse(startDate) + convertWeekstoMilliseconds(n),'consolidated':{'hrs': 0,'std':0}})
+            }
+            
+            for (const d of this.rawData){
+                let valid = true
+                let series
+                for (const [pLabel, p] of Object.entries(d.params)){
+                    if (pLabel == visibleDim){
+                        series = p;
+                    }
+                    else if (!params[pLabel].has(p)){
+                        console.log(pLabel,p)
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid)
+                    continue;
+                const [xLabel, x] = Object.entries(d.x)[0];
+                const i = convertMillisecondstoWeeks(Date.parse(x) - startDate_millis);
+                if (gdata[i][series] == undefined)
+                    gdata[i][series] = Object.assign({},d.y)
+                else{
+                    for (const [yLabel, y] of Object.entries(d.y)){
+                        gdata[i][series][yLabel] += y;
+                    }
+                }        
+            }
+            for (const d of gdata){
+                d['week'] = new Date(d['week']).toUTCString().slice(5,16);
+            }
+            return gdata
+        }
+    }
+
+    
+    /*
+    for (const task of selectedTasks){
+        for (const user of selectedUsers){
+            if (clientData[user][task] == undefined)
+                continue;
+            for (const [week, wdata] of Object.entries(clientData[user][task])){
+                weekIndex = convertMillisecondstoWeeks(Date.parse(week) - startDate_millis);
+                const taskData = gdata[weekIndex][task] || {'Hours':0, 'Days':0};
+                taskData['Hours'] += wdata[0];
+                taskData['Days'] += wdata[1];
+                gdata[weekIndex][task] = taskData;
+            }
+        }
+    }*/
+    
+    var i = 0;
+    //var dgen = new data(data);
+    var params = {'task': new Set(selectedTasks), 'user': new Set(selectedUsers)};
+    var visibleDim = 'task';
+    var dgen = new ComponentDataGenerator(clientData);
+    var figure = new InteractiveController(document.querySelector('.divBody'), i, dgen.generateData(visibleDim,params), 'DAS/Detector', {'task':{'task':selectedTasks}, 'user':{'user':selectedUsers}}, ['hrs', 'qty'], dgen);
+    var graph = new InteractiveGraph(figure, i, 'week', 'hours');
+    var toggle = new ToggleTable(figure, i);
+    
+
+    function convertWeekstoMilliseconds(nweeks){
+        if(typeof(nweeks) != 'number')
+            throw 'weeks is not a number!';
+        return parseInt(nweeks)*7*24*3600*1000;
+    }
+    function convertMillisecondstoWeeks(ms){
+        if(typeof(ms) != 'number')
+            throw 'weeks is not a number!';
+        return parseInt(ms/7/24/3600/1000);
+    }
+/*
+    var data = {
+        'itruong':[
+            {'date':'2019-03-24', 'tasks': {'1':[10,12,1.1],'2':[5,2,2]}},
+            {'date':'2019-03-31', 'tasks': {'1':[11,12,1.1],'2':[4,2,2]}}
+        ],
+        'testuser':[
+            {'date':'2019-03-24', 'tasks': {'1':[15,20,1.1],'1a':[12,12,1]}}
+        ]
+    }
+*/
+</script>
+{% endblock %}

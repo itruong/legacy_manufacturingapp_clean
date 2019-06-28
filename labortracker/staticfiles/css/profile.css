@@ -1,0 +1,38 @@
+
+.actionCell, .actionRow{
+    cursor: pointer;
+}
+
+tr:nth-child(even){
+	background-color:rgb(238, 249, 255);
+}
+tr:nth-child(odd){
+	background-color:#d3edff;
+	/*background-color: rgb(218, 230, 240);*/
+}
+
+.divTable{
+    margin: 0 0 0 10%;
+	width: auto;
+	table-layout: fixed;
+	border: 1px solid black;
+	border-collapse: collapse;
+	box-shadow: 0 2px 4px 0 lightgray, 0 2px 10px 0 lightgray;
+	/*margin: auto;*/
+}
+
+.actionCell{
+    background: white;
+    border-bottom: 1px solid black;
+}
+
+th{
+    width: 150px;
+}
+
+td{
+    width: 200px;
+    border-right: 1px solid black;
+    text-align: center;
+}
+
